@@ -1,0 +1,21 @@
+{
+	"i2c": {
+		"main": {}
+	},
+	"ServoHat": {
+		"hat1": {
+			"i2c": "main",
+			"address": "0x40"
+		},
+		"hat2": {
+			"i2c": "main",
+			"address": "0x41"
+		}
+	},
+	"Servo": {
+		"servo1": {
+			"hat": "hat1",
+			"channel": "0"
+		}
+	}
+}

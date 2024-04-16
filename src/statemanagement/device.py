@@ -3,7 +3,7 @@ import json
 import logging
 from collections import OrderedDict
 from contextlib import contextmanager
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from functools import reduce, wraps
 
 from .logger import configure_logger
@@ -18,6 +18,11 @@ class Context:
     masked_device_contexts: list
     on_exit: callable
     masked_from: "Context" = None
+
+    def __getitem__(self, i: str) -> inspect.Any:
+        if i in self.stored_keys:
+            return self.store[i]
+        raise KeyError(f"{i} not found in {self}")
 
 
 DEVICE_CONTEXT_COLLECTION = {}
