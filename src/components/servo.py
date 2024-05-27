@@ -6,10 +6,10 @@ import busio
 import components.i2c as i2c_actions
 from statemanagement.device import create_context, device, device_parser, identifier
 
-hat_ctx = create_context("ServoHat", adafruit_pca9685.PCA9685)
+ctx = create_context("ServoHat", adafruit_pca9685.PCA9685)
 
 
-@device_parser(hat_ctx)
+@device_parser(ctx)
 def parse_hat(config: dict):
     config["i2c"] = (
         config["i2c"]
@@ -31,7 +31,7 @@ def parse_hat(config: dict):
 @dataclass
 class Servo:
     intdex: int
-    servo_hat: adafruit_pca9685.PCA9685 = identifier(hat_ctx)
+    servo_hat: adafruit_pca9685.PCA9685 = identifier(ctx)
 
 
 servo_ctx = create_context("Servo", Servo)
