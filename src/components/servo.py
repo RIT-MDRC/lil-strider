@@ -4,12 +4,18 @@ import adafruit_pca9685
 import busio
 
 import components.i2c as i2c_actions
-from statemanagement.device import create_context, device, device_parser, identifier
+from statemanagement.device import (
+    create_context,
+    device,
+    device_action,
+    device_parser,
+    identifier,
+)
 
-ctx = create_context("ServoHat", adafruit_pca9685.PCA9685)
+hat_ctx = create_context("ServoHat", adafruit_pca9685.PCA9685)
 
 
-@device_parser(ctx)
+@device_parser(hat_ctx)
 def parse_hat(config: dict):
     config["i2c"] = (
         config["i2c"]
@@ -30,15 +36,25 @@ def parse_hat(config: dict):
 @device
 @dataclass
 class Servo:
-    intdex: int
-    servo_hat: adafruit_pca9685.PCA9685 = identifier(ctx)
+    channel: int
+    hat: adafruit_pca9685.PCA9685 = identifier(hat_ctx)
 
 
-servo_ctx = create_context("Servo", Servo)
-ctx = servo_ctx
+ctx = create_context("Servo", Servo)
 """main ctx to use for servo component."""
 
 
-@device_parser(servo_ctx)
+@device_parser(ctx)
 def parse_servo(config: dict):
     return Servo(**config)
+
+
+@device_action(ctx)
+def set_angle(device: Servo, angle: int):
+    pulse = int((angle / 180) * (2**12))  # has to be from 0 to 1000
+    device.hat.channels[device.channel].duty_cycle = pulse
+
+
+@device_action(ctx)
+def set_raw_duty_cycle(device: Servo, duty_cycle: int):
+    device.hat.channels[device.channel].duty_cycle = duty_cycle

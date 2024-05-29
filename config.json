@@ -15,7 +15,7 @@
 	"Servo": {
 		"servo1": {
 			"hat": "hat1",
-			"channel": "0"
+			"channel": 0
 		}
 	}
 }
