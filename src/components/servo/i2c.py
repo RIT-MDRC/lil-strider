@@ -5,7 +5,7 @@ import busio
 
 from statemanagement.device import create_context, device, device_parser, identifier
 
-ctx = create_context("I2C", busio.I2C)
+ctx = create_context("i2c", busio.I2C)
 
 
 @device_parser(ctx)

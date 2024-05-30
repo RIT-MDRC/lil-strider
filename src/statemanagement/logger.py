@@ -42,9 +42,13 @@ def configure_logger(level: str = "Debug"):
     print(f"Configuring logger {level}...")
     start_time = d.now().strftime("%Y-%m-%d.%H:%M:%S")
     filename = __main__.__file__.split("/")[-1].split(".")[0]
-    logging.basicConfig(
-        filename=f".log/{start_time}.{filename}.{level}.log",
-        format="%(filename)s: %(message)s",
-        level=lvl,  # TODO: hook it to env or config file
-        force=True,
-    )
+    try:
+        logging.basicConfig(
+            filename=f".log/{start_time}.{filename}.{level}.log",
+            format="%(filename)s: %(message)s",
+            level=lvl,  # TODO: hook it to env or config file
+            force=True,
+        )
+    except Exception:
+        print("Log file creation failed: Make sure folder with the name .log is at the root project folder or workspace.")
+        raise 

@@ -1,15 +1,15 @@
 from dataclasses import dataclass
+import logging
 
 import adafruit_pca9685
 import busio
+from adafruit_motor.servo import Servo
 
-import components.i2c as i2c_actions
+import components.servo.i2c as i2c_actions
 from statemanagement.device import (
     create_context,
-    device,
     device_action,
     device_parser,
-    identifier,
 )
 
 hat_ctx = create_context("ServoHat", adafruit_pca9685.PCA9685)
@@ -17,10 +17,10 @@ hat_ctx = create_context("ServoHat", adafruit_pca9685.PCA9685)
 
 @device_parser(hat_ctx)
 def parse_hat(config: dict):
-    config["i2c"] = (
+    config["i2c_bus"] = (
         config["i2c"]
-        if isinstance(config["i2c"], busio.I2C)
-        else i2c_actions.ctx[config["i2c"]]
+        if isinstance(config["i2c_bus"], busio.I2C)
+        else i2c_actions.ctx[config["i2c_bus"]]
     )
     if not isinstance(config["address"], int):
         # in case the address is a string of hex or binary number in json file we need to convert it to int
@@ -29,15 +29,9 @@ def parse_hat(config: dict):
             del config["address_base"]
         addr = int(config["address"], base)
         config["address"] = addr
-
+    del config["_identifier"]
+    
     return adafruit_pca9685.PCA9685(**config)
-
-
-@device
-@dataclass
-class Servo:
-    channel: int
-    hat: adafruit_pca9685.PCA9685 = identifier(hat_ctx)
 
 
 ctx = create_context("Servo", Servo)
@@ -46,15 +40,20 @@ ctx = create_context("Servo", Servo)
 
 @device_parser(ctx)
 def parse_servo(config: dict):
-    return Servo(**config)
+    hat = config.get("hat")
+    channel_index = config.get("channel")
+    min_pulse = config.get("min_pulse", 500)
+    max_pulse = config.get("max_pulse", 2500)
+    if hat is None or channel_index is None:
+        raise ValueError("hat and channel are required for a servo")
+    if isinstance(hat, str):
+        hat = hat_ctx.store.get(hat)
+        if hat is None:
+            raise Exception("Hat was not found")
+    return Servo(hat.channels[channel_index], min_pulse=min_pulse, max_pulse=max_pulse, actuation_range=270)
 
 
 @device_action(ctx)
 def set_angle(device: Servo, angle: int):
-    pulse = int((angle / 180) * (2**12))  # has to be from 0 to 1000
-    device.hat.channels[device.channel].duty_cycle = pulse
-
-
-@device_action(ctx)
-def set_raw_duty_cycle(device: Servo, duty_cycle: int):
-    device.hat.channels[device.channel].duty_cycle = duty_cycle
+    logging.info("setting servo to %s", str(angle))
+    device.angle = angle

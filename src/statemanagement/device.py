@@ -19,7 +19,7 @@ class Context:
     on_exit: callable
     masked_from: "Context" = None
 
-    def __getitem__(self, i: str) -> inspect.Any:
+    def __getitem__(self, i: str):
         if i in self.stored_keys:
             return self.store[i]
         raise KeyError(f"{i} not found in {self}")
@@ -28,7 +28,7 @@ class Context:
 DEVICE_CONTEXT_COLLECTION = {}
 
 
-def check_only_class_instance(ctx: Context, x: any):
+def check_only_class_instance(ctx: Context, x):
     return reduce(lambda res, y: res or isinstance(x, y), ctx.allowed_classes, False)
 
 
