@@ -1,14 +1,9 @@
 {
-	"i2c": {
-		"main": {}
-	},
 	"ServoHat": {
 		"hat1": {
-			"i2c_bus": "main",
 			"address": "0x40"
 		},
 		"hat2": {
-			"i2c_bus": "main",
 			"address": "0x41"
 		}
 	},
@@ -27,42 +22,42 @@
 		},
 		"servo4": {
 			"hat": "hat1",
-			"channel": 3
+			"channel": 9
 		},
 		"servo5": {
 			"hat": "hat1",
-			"channel": 4
+			"channel": 10
 		},
 		"servo6": {
 			"hat": "hat1",
-			"channel": 5
+			"channel": 11
 		},
 		"servo7": {
 			"hat": "hat1",
-			"channel": 6
+			"channel": 13
 		},
 		"servo8": {
 			"hat": "hat1",
-			"channel": 7
+			"channel": 14
 		},
 		"servo9": {
 			"hat": "hat1",
-			"channel": 8
+			"channel": 15
 		},
 		"servo10": {
-			"hat": "hat1",
-			"channel": 9
+			"hat": "hat2",
+			"channel": 0
 		},
 		"servo11": {
-			"hat": "hat1",
-			"channel": 10
+			"hat": "hat2",
+			"channel": 1
 		},
 		"servo12": {
-			"hat": "hat1",
-			"channel": 11
+			"hat": "hat2",
+			"channel": 2
 		},
 		"servo13": {
-			"hat": "hat1",
+			"hat": "hat2",
 			"channel": 12
 		}
 	}

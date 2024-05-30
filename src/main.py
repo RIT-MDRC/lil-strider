@@ -3,4 +3,5 @@ from statemanagement.device import configure_device
 
 configure_device("config.json")
 
-set_angle("servo5", 0)
+while True:
+  set_angle(f"servo1", 270)
