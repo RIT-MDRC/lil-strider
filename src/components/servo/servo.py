@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 import logging
 
 import adafruit_pca9685
@@ -26,7 +25,7 @@ def parse_hat(config: dict):
         config["address"] = addr
     del config["_identifier"]
     return ServoKit(channels=16, address=config["address"])
-    
+
 
 ctx = create_context("Servo", Servo)
 """main ctx to use for servo component."""
