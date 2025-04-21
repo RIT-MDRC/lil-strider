@@ -100,7 +100,7 @@ def get_context(device_name: str) -> Context:
 
 
 def device_parser(ctx: Context):
-    def decorator(func: callable):
+    def decorator(func):
         def wrapped_func(value, _identifier):
             if isinstance(value, dict):
                 value["_identifier"] = _identifier
@@ -116,7 +116,7 @@ def device_parser(ctx: Context):
 
 
 def device_exit(ctx: Context):
-    def decorator(func: callable):
+    def decorator(func):
         ctx.on_exit = func
         return func
 
@@ -124,7 +124,7 @@ def device_exit(ctx: Context):
 
 
 def device_action(ctx: Context):
-    def decorator(func: callable):
+    def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
             if len(args) < 1:
@@ -185,7 +185,7 @@ def device(cls):
                     raise ValueError(
                         f"{ctx}: {value} does not exist. Unique identifiers: \n{ctx.stored_keys}"
                     )
-                if not value in ctx.stored_keys:
+                if value not in ctx.stored_keys:
                     ctx.stored_keys.add(value)
 
                 return value
@@ -210,32 +210,6 @@ def open_json(file_name: str = "pinconfig.json"):
         config = json.load(file, object_pairs_hook=OrderedDict)
     for key, value in config.items():
         yield key, value
-
-
-def log_states():
-    logging.info("Device configuration complete")
-    logging.info(
-        "Total of %s device parsers configured", len(DEVICE_CONTEXT_COLLECTION)
-    )
-    logging.debug("Device parsers: \n%s", "\n".join(DEVICE_CONTEXT_COLLECTION.keys()))
-    logging.info(
-        "Total of %s devices configured",
-        sum([len(x.store) for x in DEVICE_CONTEXT_COLLECTION.values()]),
-    )
-    logging.debug(
-        "Devices: \n%s",
-        "\n".join(
-            [
-                f"\n{z}:\n\t\t{w}"
-                for z, w in {
-                    f'"{x}"': "\n\t\t".join(
-                        [f'"{i}":{j}' for i, j in y.store.items() if i in y.stored_keys]
-                    )
-                    for x, y in DEVICE_CONTEXT_COLLECTION.items()
-                }.items()
-            ]
-        ),
-    )
 
 
 @contextmanager
@@ -314,26 +288,6 @@ def configure_device(
 
     log_states()
     logging.info("Device configuration complete")
-
-
-@contextmanager
-def configure_device_w_context(
-    file_name: str = "pinconfig.json",
-    file_kv_generator: callable = open_json,
-    log_level: str = "Debug",
-):
-    configure_device(
-        file_name=file_name, file_kv_generator=file_kv_generator, log_level=log_level
-    )
-
-    yield
-
-    logging.info("Exiting system...")
-    for ctx in DEVICE_CONTEXT_COLLECTION.values():
-        if ctx.on_exit is not None:
-            ctx.on_exit()
-    logging.info("Successfully Exiting system...")
-    logging.shutdown()
 
 
 @contextmanager
