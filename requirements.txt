@@ -1,2 +1,0 @@
-adafruit-circuitpython-lis3dh
-adafruit-circuitpython-servokit
