@@ -2,3 +2,5 @@
 scripts/*
 .log/**
 **/__pycache__/**
+
+.env
