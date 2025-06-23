@@ -3,6 +3,7 @@ import json
 import os
 
 import websockets
+from adafruit_motor.servo import Servo
 from dotenv import load_dotenv
 
 from components import servo as servo_actions
@@ -43,7 +44,7 @@ async def handle_connection(websocket):
             data: dict[str, str] = json.loads(message)
             for key, value in data.items():
                 if key in BLENDER_LEG_TO_SERVO:
-                    servo_name = BLENDER_LEG_TO_SERVO[key]
+                    servo_name: Servo = BLENDER_LEG_TO_SERVO[key]  # type: ignore
                     angle = int(value)
                     print(f"Setting {servo_name} to {angle}")
                     servo_actions.set_angle(servo_name, angle)

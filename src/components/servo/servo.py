@@ -1,7 +1,5 @@
 import logging
 
-import adafruit_pca9685
-import busio
 from adafruit_motor.servo import Servo
 from adafruit_servokit import ServoKit
 
@@ -33,14 +31,14 @@ ctx = create_context("Servo", Servo)
 
 @device_parser(ctx)
 def parse_servo(config: dict):
-    hat = config.get("hat")
+    hat: str | ServoKit | None = config.get("hat")
     channel_index = config.get("channel")
     min_pulse = config.get("min_pulse", 500)
     max_pulse = config.get("max_pulse", 2500)
     if hat is None or channel_index is None:
-        raise ValueError("hat and channel are required for a servo")
+        raise ValueError('"hat" and "channel" are required for a servo')
     if isinstance(hat, str):
-        hat: ServoKit = hat_ctx.store.get(hat)
+        hat = hat_ctx.store.get(hat)
         if hat is None:
             raise Exception("Hat was not found")
     servo = hat.servo[channel_index]

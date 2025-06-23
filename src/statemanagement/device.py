@@ -5,19 +5,20 @@ from collections import OrderedDict
 from contextlib import contextmanager
 from dataclasses import dataclass
 from functools import reduce, wraps
+from typing import Callable, Type
 
 from .logger import configure_logger
 
 
 @dataclass
 class Context:
-    allowed_classes: list
-    parse_device: callable
+    allowed_classes: tuple[Type, ...]
+    parse_device: Callable | None
     store: dict
     stored_keys: set
     masked_device_contexts: list
-    on_exit: callable
-    masked_from: "Context" = None
+    on_exit: Callable | None = None
+    masked_from: "Context | None" = None
 
     def __getitem__(self, i: str):
         if i in self.stored_keys:
@@ -25,7 +26,7 @@ class Context:
         raise KeyError(f"{i} not found in {self}")
 
 
-DEVICE_CONTEXT_COLLECTION = {}
+DEVICE_CONTEXT_COLLECTION: dict[str, Context] = {}
 
 
 def check_only_class_instance(ctx: Context, x):
@@ -46,16 +47,18 @@ def register_device(ctx: Context, name: str, device):
 
 def create_generic_context(
     generic_device_name: str,
-    device_classes: list,
-    parser_func: callable = None,
-    on_exit: callable = None,
+    device_classes: list[Type] | tuple[Type] | type,
+    parser_func: Callable | None = None,
+    on_exit: Callable | None = None,
 ):
     if isinstance(device_classes, list):
-        device_classes = tuple(device_classes)
+        allowed_classes: tuple[type, ...] = tuple(device_classes)
     elif not isinstance(device_classes, tuple):
-        device_classes = (device_classes,)
+        allowed_classes = (device_classes,)
+    else:
+        allowed_classes = device_classes
     ctx = Context(
-        allowed_classes=device_classes,
+        allowed_classes=allowed_classes,
         parse_device=parser_func,
         store=dict(),
         stored_keys=set(),
@@ -68,9 +71,9 @@ def create_generic_context(
 
 def create_context(
     generic_device_name: str,
-    device_classes: list,
-    parser_func: callable = None,
-    on_exit: callable = None,
+    device_classes: list[Type] | Type,
+    parser_func: Callable | None = None,
+    on_exit: Callable | None = None,
 ):
     return create_generic_context(
         generic_device_name, device_classes, parser_func, on_exit
@@ -92,7 +95,7 @@ def create_masked_context(ctx: Context, device_name: str):
     return new_ctx
 
 
-def get_context(device_name: str) -> Context:
+def get_context(device_name: str) -> Context | None:
     """NOTE: This function will not throw if context is missing. Returns None instead."""
     logging.debug(f"Getting context for {device_name}")
     ctx = DEVICE_CONTEXT_COLLECTION.get(device_name, None)
@@ -171,7 +174,7 @@ def device(cls):
         k: v.ctx for k, v in cls.__dict__.items() if isinstance(v, Identifier)
     }
 
-    def new_init(self, _identifier: str = None, **kwargs):
+    def new_init(self, _identifier: str | None = None, **kwargs):
         def convert_value(key, value):
             if key not in identifier_attrs or check_only_class_instance(
                 (ctx := identifier_attrs[key]), value
@@ -191,6 +194,10 @@ def device(cls):
                 return value
 
             # when an attribute's parameter is passed in as an attribute value
+            if ctx.parse_device is None:
+                raise ValueError(
+                    f"{ctx}: {key} is not a valid identifier. No parse_device function found."
+                )
             newDevice = ctx.parse_device(value, _identifier=_identifier)
             newKey = f"{_identifier}.{key}"
             register_device(ctx, newKey, newDevice)
@@ -207,12 +214,13 @@ def device(cls):
 
 def open_json(file_name: str = "pinconfig.json"):
     with open(file_name, "r") as file:
-        config = json.load(file, object_pairs_hook=OrderedDict)
+        config: OrderedDict[str, object] = json.load(
+            file, object_pairs_hook=OrderedDict
+        )
     for key, value in config.items():
         yield key, value
 
 
-@contextmanager
 def log_states():
     logging.info("Device configuration complete")
     logging.info(
@@ -239,10 +247,9 @@ def log_states():
     )
 
 
-@contextmanager
 def configure_device(
     file_name: str = "pinconfig.json",
-    file_kv_generator: callable = open_json,
+    file_kv_generator=open_json,
     log_level: str = "Debug",
 ):
     """configure the devices from the pinconfig file. This will parse the devices and store them in the global store.
@@ -282,6 +289,8 @@ def configure_device(
                     )
                 register_device(ctx, masked_key, casting_device)
             del config["__cast"]
+        if ctx.parse_device is None:
+            raise ValueError(f"{ctx}: No parse_device function found.")
         for key, device_attr in config.items():
             device = ctx.parse_device(device_attr, _identifier=key)
             register_device(ctx, key, device)
@@ -293,7 +302,7 @@ def configure_device(
 @contextmanager
 def configure_device_w_context(
     file_name: str = "pinconfig.json",
-    file_kv_generator: callable = open_json,
+    file_kv_generator=open_json,
     log_level: str = "Debug",
 ):
     configure_device(
