@@ -1,6 +1,8 @@
 .venv
 scripts/*
 .log/**
+!.log/
+!.log/README.md
 **/__pycache__/**
 
 .env
