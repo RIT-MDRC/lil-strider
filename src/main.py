@@ -54,7 +54,7 @@ async def handle_connection(websocket):
 
 async def start_server():
     async with websockets.serve(handle_connection, BLENDER_URL, 8080):
-        print("WebSocket server started on ws://localhost:8080")
+        print(f"WebSocket server started on ws://{BLENDER_URL}:8080")
         await asyncio.Future()  # Run forever
 
 
