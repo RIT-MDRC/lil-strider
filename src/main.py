@@ -3,7 +3,7 @@ import json
 import os
 import threading
 from concurrent.futures import ThreadPoolExecutor
-from queue import Queue
+from queue import Empty, Queue
 
 import websockets
 from dotenv import load_dotenv
@@ -65,6 +65,9 @@ def servo_worker():
             servo_name, angle = command
             process_servo_command(servo_name, angle)
             servo_queue.task_done()
+        except Empty:
+            # This is expected when the queue is empty, just continue
+            continue
         except Exception as e:
             print(f"Error in servo worker: {e}")
 
