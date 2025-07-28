@@ -37,7 +37,7 @@ BLENDER_LEG_TO_SERVO: dict[str, str] = {
 }
 
 
-async def handle_connection(websocket):
+async def handle_connection(websocket: websockets.ServerConnection):
     print("Client connected.")
     try:
         async for message in websocket:
@@ -53,9 +53,9 @@ async def handle_connection(websocket):
 
 
 async def start_server():
-    async with websockets.serve(handle_connection, BLENDER_URL, 8080):
+    async with websockets.serve(handle_connection, BLENDER_URL, 8080) as server:
         print(f"WebSocket server started on ws://{BLENDER_URL}:8080")
-        await asyncio.Future()  # Run forever
+        await server.serve_forever()  # Run forever
 
 
 if __name__ == "__main__":
