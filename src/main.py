@@ -42,11 +42,11 @@ async def handle_connection(websocket: websockets.ServerConnection):
     try:
         async for message in websocket:
             data: dict[str, str] = json.loads(message)
+            print(f"Received: {data}")
             for key, value in data.items():
                 if key in BLENDER_LEG_TO_SERVO:
                     servo_name: Servo = BLENDER_LEG_TO_SERVO[key]  # type: ignore
                     angle = int(value)
-                    print(f"Setting {servo_name} to {angle}")
                     servo_actions.set_angle(servo_name, angle)
     except websockets.exceptions.ConnectionClosed:
         print("Client disconnected.")
