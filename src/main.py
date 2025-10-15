@@ -111,6 +111,7 @@ async def start_server():
             running = False
             servo_queue.put(None)  # Signal worker thread to stop
             servo_executor.shutdown(wait=True)
+            print("Done! Cleaned up")
 
 
 if __name__ == "__main__":
