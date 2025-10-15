@@ -115,10 +115,12 @@ async def start_server():
 
 
 if __name__ == "__main__":
+    task = None
     try:
-        asyncio.run(start_server())
+        task = asyncio.run(start_server())
     except KeyboardInterrupt:
         print("Shutting down...")
         running = False
         servo_queue.put(None)
         servo_executor.shutdown(wait=True)
+        print("Done! Cleaned up server...")
