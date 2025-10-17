@@ -44,6 +44,7 @@ servo_executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix="servo_wor
 servo_queue = Queue(maxsize=1000)
 # Flag to control the servo processing thread
 running = True
+ANGLE_OFFSET = 90
 
 
 def process_servo_command(servo_name: str, angle: int):
@@ -88,7 +89,7 @@ async def handle_connection(websocket: websockets.ServerConnection):
             for key, value in data.items():
                 if key in BLENDER_LEG_TO_SERVO:
                     servo_name: str = BLENDER_LEG_TO_SERVO[key]
-                    angle = int(value)
+                    angle = int(value) + ANGLE_OFFSET
 
                     # Add command to queue for processing by worker thread
                     try:
