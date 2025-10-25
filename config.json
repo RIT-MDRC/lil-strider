@@ -1,10 +1,10 @@
 {
 	"ServoHat": {
 		"hat1": {
-			"address": "0x40"
+			"address": "0x41"
 		},
 		"hat2": {
-			"address": "0x41"
+			"address": "0x40"
 		}
 	},
 	"Servo": {
