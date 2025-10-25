@@ -49,41 +49,41 @@
 
 		"servo10": {
 			"hat": "hat2",
-			"channel": 4
+			"channel": 5
 		},
 		"servo11": {
 			"hat": "hat2",
-			"channel": 5
+			"channel": 6
 		},
 		"servo12": {
 			"hat": "hat2",
-			"channel": 6
+			"channel": 7
 		},
 
 		"servo13": {
 			"hat": "hat2",
-			"channel": 8
+			"channel": 9
 		},
 		"servo14": {
 			"hat": "hat2",
-			"channel": 9
+			"channel": 10
 		},
 		"servo15": {
 			"hat": "hat2",
-			"channel": 10
+			"channel": 11
 		},
 
 		"servo16": {
 			"hat": "hat2",
-			"channel": 11
+			"channel": 13
 		},
 		"servo17": {
 			"hat": "hat2",
-			"channel": 12
+			"channel": 14
 		},
 		"servo18": {
 			"hat": "hat2",
-			"channel": 13
+			"channel": 15
 		}
 	}
 }
